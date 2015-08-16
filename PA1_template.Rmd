@@ -1,5 +1,7 @@
 ---
-output: html_document
+output:
+  html_document:
+    keep_md: yes
 ---
 Analysis of Fitbit Steps Data
 -----------------------------------
@@ -7,7 +9,7 @@ Analysis of Fitbit Steps Data
 To load the data,
 
 ```{r}
-setwd("/Users/rossc/Dropbox/Engineering/Reproducible Research")
+setwd("/Users/rossc/Dropbox/Engineering/RR1")
 activity <- read.csv("activity.csv")
 ```
 
