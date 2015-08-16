@@ -1,0 +1,92 @@
+---
+output: html_document
+---
+Analysis of Fitbit Steps Data
+-----------------------------------
+
+To load the data,
+
+```{r}
+setwd("/Users/rossc/Dropbox/Engineering/Reproducible Research")
+activity <- read.csv("activity.csv")
+```
+
+To find the total number of steps taken per day,
+
+```{r}
+by(activity$steps, activity$date, sum, na.rm = TRUE)
+```
+
+To plot the total number of steps taken per day in a histogram,
+
+```{r}
+total_steps <- by(activity$steps, activity$date, sum, na.rm = TRUE)
+hist(total_steps, breaks = 15)
+```
+
+To take the mean and median of total steps per day,
+
+```{r}
+summary(total_steps)
+```
+
+To plot the mean number of steps taken over 60 days in each five minute interval,
+
+```{r}
+min <- levels(factor(activity$interval))
+mean_steps <- by(activity$steps, activity$interval, mean, na.rm = TRUE)
+plot(min, mean_steps, type = "l")
+```
+
+To find the five minute interval with the maximum average number of steps, the first entry in the following will be the interval associated with the maximum:
+
+```{r}
+which.max(mean_steps)
+```
+
+To find the number of missing values (NA's) in the data,
+
+```{r}
+length(which(is.na(activity$steps)))
+```
+
+To create a new dataset with imputed values for all NA's called activity.complete,
+
+```{r}
+activity.complete <- activity
+activity.complete$steps[is.na(activity.complete$steps)] = mean(activity.complete$steps, na.rm=TRUE)
+```
+
+To plot the total number of steps taken per day for activity.complete in a histogram,
+
+```{r}
+total_steps.complete <- by(activity.complete$steps, activity.complete$date, sum, na.rm = TRUE)
+hist(total_steps.complete, breaks = 15)
+```
+
+To take the mean and median of total steps per day for activity.complete,
+
+```{r}
+summary(total_steps.complete)
+```
+
+Not surprisingly all the data becomes more squeezed towards the mean.
+
+To look at whether the data was taken on a weekday or weekend we will add a new column with a True or False value to tell wether the observation was a weekday or not. Then we will change the values to Weekday and Weekend.
+
+```{r}
+activity.complete[, 4] <- !(weekdays(as.Date(activity.complete$date)) %in% c('Saturday', 'Sunday'))
+activity.complete[activity.complete[, 4] == TRUE, 4] <- "Weekday"
+activity.complete[activity.complete[, 4] == FALSE, 4] <- "Weekend"
+names(activity.complete)[4] <- "weekdays"
+```
+
+To plot this data and compare the mean number of steps taken over the course of a weekday versus a weekend we use
+
+```{r}
+weekday.steps.mean <- by(activity.complete[activity.complete$weekdays == "Weekday" , 1], activity.complete[activity.complete$weekdays == "Weekday", 3], mean, na.rm = TRUE)
+weekend.steps.mean <- by(activity.complete[activity.complete$weekdays == "Weekend" , 1], activity.complete[activity.complete$weekdays == "Weekend", 3], mean, na.rm = TRUE)
+par(mfrow = c(2,1))
+plot(weekday.steps.mean, type = "l", xlab = "Minutes", ylab = "Weekday Steps")
+plot(weekend.steps.mean, type = "l", xlab = "Minutes", ylab = "Weekend Steps")
+```
